@@ -3,31 +3,34 @@ import os
 
 def extractContent(inString):
 
+    inString = inString.replace('&#160;',' ')
     outArray = []
     temp = ''
     ignore = False
-    getOneMore = False
     for i in range(len(inString)):
         #print(i, inString[i])
         if (inString[i] == '<'):
             ignore = True
             temp = temp.strip()
             if (len(temp) > 0) :
-                if (('UTC' in temp or 'EST' in temp or 'CET' in temp) and len(outArray)>0):
-                    #print(temp)
-                    if('(' in outArray[-1]):
-                        getOneMore = True
-                    outArray[-1]+=(' '+temp)
-            
+                if ('UTC' in temp or 'EST' in temp or 'CET' in temp):
+                    pass
+                elif (('2001-08-' in temp) or ('2001-07-' in temp) or ('2001-09-' in temp)):
+                    pass
+                elif ((':' in temp) or (')' in temp)):
+                    pass
+                elif ( '(' in temp):
+                    temp = temp.replace('(','')
+                    if (len(temp)>0):
+                        outArray.append(temp)
                 elif 'aet' in temp or 'a.e.t.' in temp:
-                    outArray[-1]+=temp
-                    getOneMore = True
-                elif getOneMore:
-                    outArray[-1]+=temp
-                    getOneMore = False
+                    if (len(outArray)>0):
+                        outArray[-1]+=temp
+                    else:
+                        outArray.append('special'+temp+'special')
                 elif 'orfeited' in temp:
                     pass
-                else:   
+                elif not temp.isspace():   
                     outArray.append(temp)
                 temp = ''
                 
@@ -61,7 +64,7 @@ def readFile(fname, mywriter):
             tokens = []
         if getTokens == True:
             #print(line)
-            if tokenCount < 5:
+            if tokenCount < 4:
                 newTokens = extractContent(line)
                 tokens.extend(newTokens)
                 tokenCount += len(newTokens)
@@ -72,7 +75,25 @@ def readFile(fname, mywriter):
         else:
             continue
             
-            
+       
+createSortedFile():
+
+    monthLookup = {
+        'January': 1,
+        'February': 2,
+        'March': 3,
+        'April': 4,
+        'May': 5,
+        'June': 6,
+        'July': 7,
+        'August': 8,
+        'September': 9,
+        'October': 10,
+        'November': 11,
+        'December': 12,
+    }
+
+       
 def driver(directory):
 
     
@@ -84,7 +105,7 @@ def driver(directory):
     mywriter = writer(outfile, delimiter = ',')
     
     for fname in fnames:
-        if fname != 'CLHistory.log':
+        if CLHistory not in fname:
             readFile(fname,mywriter)
         
     outfile.close()
